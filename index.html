@@ -1,0 +1,111 @@
+<html>
+  <head>
+    <title>Three.J.S</title>
+
+    <style>
+    body { margin 0; }
+    canvas{width: 100%; height: 100%;};
+    </style>
+  </head>
+
+  <body>
+    <script src="js/three.js"></script>
+    <script src="js/OrbitControls.js"></script>
+
+    <script>
+    let scene = new THREE.Scene ( );
+    let camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+    let renderer = new THREE.WebGLRenderer( );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    document.body.appendChild ( renderer.domElement );
+
+    window.addEventListener( 'resize', function(){
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      renderer.setSize(width, height );
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+    } )
+
+    controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+    // create the geometry sphere
+    let starGeometry  = new THREE.BoxGeometry(90, 90, 90)
+    // create the material, using a texture of startfield
+    let starMaterial  = new THREE.MeshBasicMaterial()
+    starMaterial.map   = new THREE.TextureLoader().load('https://i.ytimg.com/vi/WUCtJrDKvaQ/maxresdefault.jpg ')
+    starMaterial.side  = THREE.BackSide
+    // create the mesh based on geometry and material
+    let stars  = new THREE.Mesh(starGeometry, starMaterial)
+
+    function fact(n) {
+      n = n.toPrecision(3)
+      let factExample = {0.000: 1, 0.500: Math.sqrt(Math.PI) / 2, 0.333: 2.678, 0.250: 3.625}
+      console.log(n);
+      if (factExample[n]) {
+        return factExample[n];
+      } else if (factExample[1-n]) {
+        return factExample[1-n]
+      } else {
+        return n * fact(n-1);
+      }
+    }
+    function choose(n,k) {
+      return (fact(n) / (fact(k) * fact(n - k)));
+    }
+
+    for (let q = 0; q <= 3; q++) {
+      for (let r = 0; r <= 3; r++) {
+        let geometry = new THREE.SphereBufferGeometry( 0.05, 30, 30 );
+        let material = new THREE.MeshPhongMaterial();
+        let sphere = new THREE.Mesh(geometry, material );
+        scene.add( sphere );
+        sphere.position.x = q;
+        sphere.position.z = q * (r / 3 - (1 / (Math.sqrt(3))));
+        if (r == 1 || r == 2) {
+          if (q != 3 && q != 0) {
+            sphere.position.y = 1;
+
+          } else {
+            // sphere.position.y = choose((q/3), (r * q / 9));
+          }
+        } else {
+          // sphere.position.y = choose((q/3), (r * q / 9));
+        }
+      }
+    }
+    scene.add( stars );
+
+    var ambient = new THREE.AmbientLight(0xffffff, 0.25);
+    var light = new THREE.DirectionalLight( 0xffffff, 0.75 );
+    scene.add(light);
+    scene.add(ambient);
+
+    camera.position.z =0;
+    camera.position.y =20;
+    camera.position.x =20;
+    let update = function ()
+    {
+      light.position.x = 3 * Math.sin(Date.now() / 2400);
+      light.position.z = 3 * Math.cos(Date.now() / 2400);
+    };
+      // draw scene
+    let render = function ()
+    {
+      renderer.render( scene, camera );
+
+    };
+    // run game loop (update, render, repeat)
+    let GameLoop = function( )
+    {
+      requestAnimationFrame( GameLoop );
+
+      update( );
+      render( );
+    };
+
+    GameLoop ( );
+    </script>
+  </body>
+</html>
